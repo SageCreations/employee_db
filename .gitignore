@@ -1,3 +1,9 @@
+# Executables
+bin/*
+
+# database files used in testing
+*.db
+
 # Prerequisites
 *.d
 
