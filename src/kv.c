@@ -19,6 +19,8 @@ kv_t *kv_init(size_t capacity) {
     return table;
 }
 
+/*
+
 int kv_put(kv_t *db, const char *key, const char *value) {
     if (db == NULL || key == NULL || value == NULL) {
         return -1;
@@ -70,3 +72,6 @@ void  kv_free(kv_t *db) {
     free(db->entries);
     free(db);
 }
+
+
+*/
