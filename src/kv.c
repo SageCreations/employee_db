@@ -62,7 +62,7 @@ int kv_put(kv_t *db, char *key, char *value) {
             char *new_val = strdup(value);
             if (!new_val) return -1;
             entry->value = new_val;
-            return real_index;
+            return 0;
         }
 
         // found the slot, and its empty or tombstone
@@ -77,7 +77,7 @@ int kv_put(kv_t *db, char *key, char *value) {
             entry->value = new_val;
             entry->key = new_key;
             db->count++;
-            return real_index;
+            return 0;
         }
         
     }
