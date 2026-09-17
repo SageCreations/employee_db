@@ -1,4 +1,6 @@
 #include <kv.h>
+#include <string.h>
+#include <stdlib.h>
 
 kv_t *kv_init(size_t capacity) {
     if (capacity == 0) return NULL;
@@ -19,19 +21,74 @@ kv_t *kv_init(size_t capacity) {
     return table;
 }
 
-/*
+size_t hash(char *val, int capacity) {
+    size_t hash = 0x13371337deadbeef;
 
-int kv_put(kv_t *db, const char *key, const char *value) {
-    if (db == NULL || key == NULL || value == NULL) {
+    while(*val) {
+        hash ^= *val;
+        hash = hash << 8;
+        hash += *val;
+
+        val++;
+    }
+
+    return hash % capacity;
+}
+
+// fn kv_put
+// params:
+//  - db: a pointer to the db
+//  - key: a pointer to the value itself
+//  - value: a pointer to the value itself
+// returns: the index of the key, otherwise on
+// error, returns -1, on not found, returns -2
+int kv_put(kv_t *db, char *key, char *value) {
+    if (!db || !key || !value) {
         return -1;
     }
 
-    db->entries[db->count].key = key;
-    db->entries[db->count].value = value;
-    db->count++;
+    size_t index = hash(key, db->capacity);
 
-    return 0;
+    for(int i = 0; i < db->capacity - 1; i++) {
+        size_t real_index = (index + i) % db->capacity;
+
+        kv_entry_t *entry = &db->entries[real_index];
+        
+        // found the slot, occupied , and the key matches
+        if (entry->key 
+            && entry->key != (void*)TOMBSTONE
+            && !strcmp(entry->key, key)
+        ) {
+            char *new_val = strdup(value);
+            if (!new_val) return -1;
+            entry->value = new_val;
+            return real_index;
+        }
+
+        // found the slot, and its empty or tombstone
+        if (!entry->key || entry->value == (void*)TOMBSTONE) {
+            char *new_val = strdup(value);
+            char *new_key = strdup(key);
+            if (!new_val || !new_key) { 
+                free(new_val);
+                free(new_key);
+                return -1;
+            }
+            entry->value = new_val;
+            entry->key = new_key;
+            db->count++;
+            return real_index;
+        }
+        
+    }
+    
+    
+
+    // the db is occupied
+    return -2;
 }
+
+/*
 
 char *kv_get(kv_t *db, const char *key) {
     if (db == NULL || key == NULL) {
