@@ -61,6 +61,7 @@ int kv_put(kv_t *db, char *key, char *value) {
         ) {
             char *new_val = strdup(value);
             if (!new_val) return -1;
+            free(entry->value);
             entry->value = new_val;
             return 0;
         }
@@ -116,7 +117,7 @@ char *kv_get(kv_t *db, char *key) {
     return NULL;
 }
 
-// fn kv_get
+// fn kv_delete
 // params:
 //  - db: a pointer to the db
 //  - key: a pointer to the key value
@@ -153,11 +154,27 @@ int kv_delete(kv_t *db, char *key) {
     return -1;
 }
 
-void  kv_free(kv_t *db) {
-    if (db == NULL) {
-        return;
+// fn kv_free
+// params:
+//  - db: a pointer to the db
+// returns: 0 if succesful, -1 if failure
+int kv_free(kv_t *db) {
+    if (!db) return -1;
+
+    for (int i = 0; i < db->capacity - 1; i++) {
+        kv_entry_t *e = &db->entries[i];
+
+        if (e->key && e->key != (void*)TOMBSTONE) {
+            free(e->key);
+            free(e->value);
+            e->key = NULL;
+            e->value = NULL;
+            db->count--;
+        }
     }
 
     free(db->entries);
     free(db);
+
+    return 0;
 }

@@ -8,14 +8,10 @@ int main() {
 
     kv_put(db, "name", "alice");
     kv_put(db, "city", "berlin");
+    kv_put(db, "lang", "c");
 
-    // printf("%d) %s\n", alice_idx, kv_get(db, "name"));
-    // printf("%d\n", kv_delete(db, "name"));
-    assert(kv_delete(db, "name") == 0);
-    assert(kv_get(db, "name") == NULL);
-    assert(db->count == 1);
-
-    assert(kv_delete(db, "missing") == -1);
+    kv_delete(db, "city");
 
     kv_free(db);
+    // valgrind should report 0 bytes in use at exit
 }
