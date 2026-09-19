@@ -79,31 +79,45 @@ int kv_put(kv_t *db, char *key, char *value) {
             db->count++;
             return 0;
         }
-        
     }
     
-    
-
     // the db is occupied
     return -2;
 }
 
-/*
+// fn kv_get
+// params:
+//  - db: a pointer to the db
+//  - key: a pointer to the key value
+// returns: the pointer to the key NULL if not found
+char *kv_get(kv_t *db, char *key) {
+    if (!db || !key) return NULL;
 
-char *kv_get(kv_t *db, const char *key) {
-    if (db == NULL || key == NULL) {
-        return NULL;
-    }
+    size_t idx = hash(key, db->capacity);
 
-    for (size_t i = 0; i < db->count; i++) {
-        if (strcmp(db->entries[i].key, key) == 0) {
-            return db->entries[i].value;
+    for (int i = 0; i < db->capacity - 1; i++) {
+        size_t real_idx = (idx+i) % db->capacity;
+
+        kv_entry_t *entry = &db->entries[real_idx];
+
+        // is no key, therefore return nothing
+        if (entry->key == NULL) {
+            return NULL;
+        }
+
+        // find an entry and the keys match
+        if (entry->key 
+            && entry->key != (void*)TOMBSTONE
+            && !strcmp(entry->key, key)
+        ) {
+            return entry->value;
         }
     }
-
     return NULL;
 }
 
+
+/*
 int kv_delete(kv_t *db, const char *key) {
     if (db == NULL || key == NULL) {
         return -1;
@@ -120,7 +134,7 @@ int kv_delete(kv_t *db, const char *key) {
 
     return -1;
 }
-
+*/
 void  kv_free(kv_t *db) {
     if (db == NULL) {
         return;
@@ -129,6 +143,3 @@ void  kv_free(kv_t *db) {
     free(db->entries);
     free(db);
 }
-
-
-*/

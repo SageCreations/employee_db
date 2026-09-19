@@ -1,19 +1,14 @@
 #include <stdio.h>
 #include <kv.h>
+#include <string.h>
+#include <assert.h>
 
 int main() {
-    kv_t *table = kv_init(1024);
+    kv_t *db = kv_init(16);
 
-    printf("%p\n", table);
-    printf("%ld\n", table->capacity);
+    kv_put(db, "name", "alice");
+    assert(strcmp(kv_get(db, "name"), "alice") == 0);
+    assert(kv_get(db, "missing") == NULL);
 
-    kv_put(table, "hehe", "haha");
-    kv_put(table, "hehe", "hoho");
-    kv_put(table, "lala", "hoho");
-
-    for (int i = 0; i < table->capacity; i++) {
-        if (table->entries[i].key) {
-            printf("[%d] %s: %s\n", i, table->entries[i].key, table->entries[i].value);
-        }
-    }
+    kv_free(db);
 }
